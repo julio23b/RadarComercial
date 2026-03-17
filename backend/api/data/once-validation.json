@@ -1,0 +1,21 @@
+{
+  "description": "Muestra sintética de búsquedas en Once para calibrar comercios similares",
+  "queries": [
+    {
+      "query": "zapatillas deportivas once",
+      "hits": [
+        { "commerceId": "c1", "name": "Deportes Once", "category": "zapatillas deportivas", "distanceKm": 0.8, "algoliaRelevanceScore": 0.9, "views": 900, "clicks": 180, "favorites": 70, "relevant": 1 },
+        { "commerceId": "c2", "name": "Zapatería Escolar", "category": "calzado escolar", "distanceKm": 0.2, "algoliaRelevanceScore": 0.95, "views": 1500, "clicks": 120, "favorites": 20, "relevant": 0 },
+        { "commerceId": "c3", "name": "Urban Sport", "category": "zapatillas running", "distanceKm": 1.1, "algoliaRelevanceScore": 0.86, "views": 600, "clicks": 160, "favorites": 65, "relevant": 1 }
+      ]
+    },
+    {
+      "query": "blanquería mayorista once",
+      "hits": [
+        { "commerceId": "c4", "name": "Blanco Hogar", "category": "blanquería mayorista", "distanceKm": 0.9, "algoliaRelevanceScore": 0.87, "views": 500, "clicks": 110, "favorites": 40, "relevant": 1 },
+        { "commerceId": "c5", "name": "Textil Centro", "category": "telas", "distanceKm": 0.1, "algoliaRelevanceScore": 0.94, "views": 1700, "clicks": 170, "favorites": 25, "relevant": 0 },
+        { "commerceId": "c6", "name": "Sábanas Express", "category": "blanquería", "distanceKm": 1.2, "algoliaRelevanceScore": 0.84, "views": 300, "clicks": 90, "favorites": 50, "relevant": 1 }
+      ]
+    }
+  ]
+}

@@ -6,7 +6,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "api:start": "node backend/api/server.js",
+    "api:validate-once": "node backend/api/scripts/validate-once.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
