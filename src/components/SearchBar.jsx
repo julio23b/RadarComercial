@@ -7,7 +7,7 @@ const SearchBar = ({ value, onChangeText, onFilterPress }) => {
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Busca"
+        placeholder="Buscar comercios en Once"
         value={value}
         onChangeText={onChangeText}
       />
@@ -19,7 +19,6 @@ const SearchBar = ({ value, onChangeText, onFilterPress }) => {
 };
 
 export default SearchBar;
-
 
 const styles = StyleSheet.create({
   container: {
