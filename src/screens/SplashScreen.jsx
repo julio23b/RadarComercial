@@ -1,19 +1,15 @@
 import React from 'react';
 import { SafeAreaView, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
-const SplashScreen = ({ navigation }) => {
-  const handleEnter = () => {
-    navigation.replace('MainTabs'); 
-  };
+const SplashScreen = () => {
+  const { loading } = useAuth();
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image
-        style={styles.logo}
-        source={require('../../assets/logo/logoLaConquista.png')}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleEnter}>
-        <Text style={styles.buttonText}>Entrar</Text>
+      <Image style={styles.logo} source={require('../../assets/logo/logoLaConquista.png')} />
+      <TouchableOpacity style={styles.button} disabled>
+        <Text style={styles.buttonText}>{loading ? 'Cargando sesión...' : 'Redirigiendo...'}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -39,6 +35,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 10,
+    opacity: 0.8,
   },
 
   buttonText: {
