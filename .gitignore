@@ -1,0 +1,4 @@
+node_modules/
+admin-dashboard/node_modules/
+admin-dashboard/.next/
+admin-dashboard/.env.local
