@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import {View,Text,StyleSheet,ScrollView,TouchableOpacity,} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context'; 
 import SearchBar from '../components/SearchBar';
 import { products } from '../data/products';
 import ProductCard from '../components/ProductCard';
+import { trackEvent } from '../../mobile-app/services/analytics';
 
 
 const ProductScreen = () => {
-  const navigation = useNavigation();
   const onFilterPress = () => setMostrarFiltros(!mostrarFiltros);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [mostrarFiltros, setMostrarFiltros] = useState(true);
   
   const categories = ['Alfombras', 'Caminos de mesa', 'Trapos/Rejillas'];
+
+  const handleSearchSubmit = (query) => {
+    trackEvent('search_performed', {
+      query: query?.trim() || '',
+      source_screen: 'ProductScreen',
+    });
+  };
 
   const productosFiltrados = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -33,6 +39,7 @@ const ProductScreen = () => {
         <SearchBar value={searchQuery} 
         onChangeText={setSearchQuery} 
         onFilterPress={onFilterPress}
+        onSubmitEditing={handleSearchSubmit}
         />
 
         <View style={[styles.buttonGroup, { opacity: mostrarFiltros ? 0 : 1 }]}>
@@ -64,8 +71,7 @@ const ProductScreen = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                onAdd={(item) => console.log('Agregado:', item.name)}
-                onPress={(item) => navigation.navigate('DetallesProducto', { product: item })}
+                sourceScreen='ProductScreen'
               />
             ))}
           </View>

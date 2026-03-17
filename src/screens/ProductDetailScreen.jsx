@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
+import { trackEvent } from '../../mobile-app/services/analytics';
 
 export default function ProductDetailScreen() {
   const {addToCart} = useCart();
   const route = useRoute();
   const navigation = useNavigation();
-  const { product } = route.params || {};
+  const { product, sourceScreen = 'unknown' } = route.params || {};
   if (!product) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -23,13 +25,42 @@ export default function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [displayImage, setDisplayImage] = useState(product.colors[0].image);
+  const [isFavorite, setIsFavorite] = useState(false);
 
+  useEffect(() => {
+    trackEvent('commerce_viewed', {
+      commerce_id: product.id,
+      source_screen: sourceScreen,
+    });
+  }, [product.id, sourceScreen]);
+
+  const handleFavoritePress = () => {
+    const nextValue = !isFavorite;
+    setIsFavorite(nextValue);
+
+    trackEvent('commerce_favorited', {
+      commerce_id: product.id,
+      source_screen: sourceScreen,
+      favorited: nextValue,
+    });
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <Image source={displayImage} style={styles.image} />
-        <Text style={styles.name}>{product.name}</Text>
+
+        <View style={styles.titleRow}>
+          <Text style={styles.name}>{product.name}</Text>
+          <TouchableOpacity onPress={handleFavoritePress}>
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isFavorite ? '#cc3f5f' : '#175560'}
+            />
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.price}>${product.price}</Text>
 
         <Text style={styles.label}>Medidas:</Text>
@@ -121,6 +152,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
+  },
+  titleRow: {
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   name: {
     fontSize: 20,
