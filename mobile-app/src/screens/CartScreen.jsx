@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {View,Text,FlatList,StyleSheet,TouchableOpacity,Image,Alert,Linking} from 'react-native';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CartScreen() {

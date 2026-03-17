@@ -1,0 +1,8 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  padding: 2rem;
+  color: #12343b;
+}
+main { max-width: 900px; margin: 0 auto; }
