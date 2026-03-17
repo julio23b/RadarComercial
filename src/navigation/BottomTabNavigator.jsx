@@ -5,6 +5,7 @@ import HomeScreen from '../screens/HomeScreen';
 import CartScreen from '../screens/CartScreen';
 import AboutScreen from '../screens/AboutScreen';
 import ProductStackNavigator from './ProductStackNavigator';
+import FavoritesScreen from '../screens/FavoritesScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +21,8 @@ const BottomTabNavigator = () => {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Product') {
             iconName = focused ? 'bag' : 'bag-outline';
+          } else if (route.name === 'Favorites') {
+            iconName = focused ? 'heart' : 'heart-outline';
           } else if (route.name === 'Cart') {
             iconName = focused ? 'cart' : 'cart-outline';
           } else if (route.name === 'About') {
@@ -33,7 +36,8 @@ const BottomTabNavigator = () => {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Product" component={ProductStackNavigator} />  
+      <Tab.Screen name="Product" component={ProductStackNavigator} />
+      <Tab.Screen name="Favorites" component={FavoritesScreen} />
       <Tab.Screen name="Cart" component={CartScreen} />
       <Tab.Screen name="About" component={AboutScreen} />
     </Tab.Navigator>
