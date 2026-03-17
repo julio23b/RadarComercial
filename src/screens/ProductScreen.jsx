@@ -1,76 +1,80 @@
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import {View,Text,StyleSheet,ScrollView,TouchableOpacity,} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; 
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { FlashList } from '@shopify/flash-list';
 import SearchBar from '../components/SearchBar';
-import { products } from '../data/products';
 import ProductCard from '../components/ProductCard';
-
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useCommerces } from '../hooks/useCommerces';
+import { useFavoritesContext } from '../context/FavoritesContext';
 
 const ProductScreen = () => {
-  const navigation = useNavigation();
-  const onFilterPress = () => setMostrarFiltros(!mostrarFiltros);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [mostrarFiltros, setMostrarFiltros] = useState(true);
-  
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 350);
+  const { favoriteIds, toggleFavorite } = useFavoritesContext();
+
   const categories = ['Alfombras', 'Caminos de mesa', 'Trapos/Rejillas'];
+  const onFilterPress = () => setMostrarFiltros(!mostrarFiltros);
 
-  const productosFiltrados = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (!categoriaSeleccionada || product.category === categoriaSeleccionada)
-  );
+  const { data: productosFiltrados = [], isLoading, isFetching } = useCommerces({
+    searchQuery: debouncedSearchQuery,
+    category: categoriaSeleccionada,
+  });
 
+  const skeletonData = useMemo(() => Array.from({ length: 6 }, (_, idx) => idx), []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Text style={styles.titulo}>Nuestros Productos</Text>
-          <Text style={styles.subtitulo}>Explora nuestras categorías.</Text>
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.titulo}>Nuestros Productos</Text>
+        <Text style={styles.subtitulo}>Explora nuestras categorías.</Text>
+      </View>
 
-        <SearchBar value={searchQuery} 
-        onChangeText={setSearchQuery} 
-        onFilterPress={onFilterPress}
-        />
+      <SearchBar value={searchQuery} onChangeText={setSearchQuery} onFilterPress={onFilterPress} />
 
-        <View style={[styles.buttonGroup, { opacity: mostrarFiltros ? 0 : 1 }]}>
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat}
+      <View style={[styles.buttonGroup, { opacity: mostrarFiltros ? 0 : 1 }]}> 
+        {categories.map((cat) => (
+          <TouchableOpacity
+            key={cat}
+            style={[styles.categoryButton, categoriaSeleccionada === cat && styles.activeCategoryButton]}
+            onPress={() => setCategoriaSeleccionada(categoriaSeleccionada === cat ? null : cat)}
+          >
+            <Text
               style={[
-                styles.categoryButton,
-                categoriaSeleccionada === cat && styles.activeCategoryButton,
+                styles.categoryButtonText,
+                categoriaSeleccionada === cat && styles.activeCategoryButtonText,
               ]}
-              onPress={() =>
-                setCategoriaSeleccionada(categoriaSeleccionada === cat ? null : cat)
-              }
             >
-              <Text
-                style={[
-                  styles.categoryButtonText,
-                  categoriaSeleccionada === cat && styles.activeCategoryButtonText,
-                ]}
-              >
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <View style={styles.sectionContainer}>
-          <View style={styles.productGrid}>
-            {productosFiltrados.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAdd={(item) => console.log('Agregado:', item.name)}
-                onPress={(item) => navigation.navigate('DetallesProducto', { product: item })}
-              />
-            ))}
-          </View>
-        </View>
-      </ScrollView>
+              {cat}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {isFetching && !isLoading && <Text style={styles.updating}>Actualizando resultados...</Text>}
+
+      <FlashList
+        data={isLoading ? skeletonData : productosFiltrados}
+        numColumns={2}
+        estimatedItemSize={220}
+        keyExtractor={(item, index) => `${item.id ?? index}`}
+        contentContainerStyle={styles.listContainer}
+        renderItem={({ item }) =>
+          isLoading ? (
+            <ProductCardSkeleton />
+          ) : (
+            <ProductCard
+              product={item}
+              isFavorite={favoriteIds.includes(item.id)}
+              onToggleFavorite={toggleFavorite}
+            />
+          )
+        }
+        ListEmptyComponent={<Text style={styles.empty}>No hay productos para esa búsqueda.</Text>}
+      />
     </SafeAreaView>
   );
 };
@@ -91,14 +95,9 @@ const styles = StyleSheet.create({
     color: '#8a9597',
     marginTop: 4,
   },
-  sectionContainer: {
+  listContainer: {
     paddingHorizontal: 20,
-    marginTop: 20,
-  },
-  productGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    paddingTop: 20,
   },
   buttonGroup: {
     flexDirection: 'row',
@@ -120,5 +119,14 @@ const styles = StyleSheet.create({
   },
   activeCategoryButtonText: {
     color: '#fff',
+  },
+  empty: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: '#8a9597',
+  },
+  updating: {
+    color: '#8a9597',
+    paddingHorizontal: 20,
   },
 });

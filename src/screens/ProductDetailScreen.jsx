@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
+import { useReviews } from '../hooks/useReviews';
+import ProgressiveImage from '../components/ProgressiveImage';
 
 export default function ProductDetailScreen() {
   const {addToCart} = useCart();
@@ -23,14 +25,15 @@ export default function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [displayImage, setDisplayImage] = useState(product.colors[0].image);
-
+  const { data: reviews = [] } = useReviews(product.id);
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Image source={displayImage} style={styles.image} />
+        <ProgressiveImage source={displayImage} style={styles.image} />
         <Text style={styles.name}>{product.name}</Text>
         <Text style={styles.price}>${product.price}</Text>
+        <Text style={styles.reviewCount}>Reseñas: {reviews.length}</Text>
 
         <Text style={styles.label}>Medidas:</Text>
         <View style={styles.sizeContainer}>
@@ -130,6 +133,10 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 18,
     fontWeight: '500',
+    marginBottom: 4,
+  },
+  reviewCount: {
+    color: '#8a9597',
     marginBottom: 12,
   },
   label: {
