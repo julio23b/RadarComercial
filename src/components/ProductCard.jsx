@@ -1,11 +1,23 @@
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { trackEvent } from '../../mobile-app/services/analytics';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, sourceScreen = 'unknown' }) => {
   const navigation = useNavigation();
+
+  const handlePress = () => {
+    trackEvent('navigation_started', {
+      source_screen: sourceScreen,
+      destination_screen: 'ProductDetail',
+      commerce_id: product.id,
+    });
+
+    navigation.navigate('ProductDetail', { product, sourceScreen });
+  };
+
   return (
-    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ProductDetail', { product })} >
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
       <Image source={product.image} style={styles.image} resizeMode="cover" />
       <View style={styles.info}>
         <Text style={styles.name}>{product.name}</Text>
@@ -50,5 +62,5 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  
+
 });

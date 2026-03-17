@@ -3,7 +3,29 @@ import { Text, StyleSheet, Image, View, ScrollView, TouchableOpacity, Linking } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ImageCarousel from '../components/ImageCarousel';
 import MapView, { Marker } from 'react-native-maps';
+import { trackEvent } from '../../mobile-app/services/analytics';
 
+const STORE_LOCATION = {
+  latitude: -30.5896101,
+  longitude: -58.4622843,
+};
+
+const getDistanceKm = (from, to) => {
+  const toRad = (value) => (value * Math.PI) / 180;
+  const earthRadiusKm = 6371;
+
+  const dLat = toRad(to.latitude - from.latitude);
+  const dLon = toRad(to.longitude - from.longitude);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(from.latitude)) *
+      Math.cos(toRad(to.latitude)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((earthRadiusKm * c).toFixed(2));
+};
 
 const AboutScreen = () => {
   const nosotros = [
@@ -16,6 +38,17 @@ const AboutScreen = () => {
     require('../../assets/carrusel/nosotros/telar5.webp'),
     require('../../assets/carrusel/nosotros/telar6.webp'),
   ];
+
+  const handleMapInteraction = (region, interactionType) => {
+    trackEvent('map_interaction', {
+      source_screen: 'AboutScreen',
+      interaction_type: interactionType,
+      distance_km: getDistanceKm(STORE_LOCATION, {
+        latitude: region.latitude,
+        longitude: region.longitude,
+      }),
+    });
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'left', 'right']}>
@@ -38,16 +71,19 @@ const AboutScreen = () => {
             <MapView
               style={{ flex: 1 }}
               initialRegion={{
-                latitude: -30.5896101,
-                longitude: -58.4622843,
+                ...STORE_LOCATION,
                 latitudeDelta: 0.015,
                 longitudeDelta: 0.015,
               }}
+              onRegionChangeComplete={(region) => handleMapInteraction(region, 'move')}
             >
               <Marker
-                coordinate={{ latitude: -30.5896101, longitude: -58.4622843 }}
+                coordinate={STORE_LOCATION}
                 title="La Conquista"
                 description="Ignacio Figueroa 185, Los Conquistadores"
+                onPress={({ nativeEvent }) =>
+                  handleMapInteraction(nativeEvent.coordinate || STORE_LOCATION, 'marker_press')
+                }
               />
             </MapView>
           </View>
@@ -93,7 +129,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#000',
-    
+
   },
   subtitle: {
     fontSize: 16,

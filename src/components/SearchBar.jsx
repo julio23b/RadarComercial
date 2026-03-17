@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const SearchBar = ({ value, onChangeText, onFilterPress }) => {
+const SearchBar = ({ value, onChangeText, onFilterPress, onSubmitEditing }) => {
   return (
     <View style={styles.container}>
       <TextInput
@@ -10,6 +10,8 @@ const SearchBar = ({ value, onChangeText, onFilterPress }) => {
         placeholder="Busca"
         value={value}
         onChangeText={onChangeText}
+        onSubmitEditing={() => onSubmitEditing?.(value)}
+        returnKeyType="search"
       />
       <TouchableOpacity style={styles.iconButton} onPress={onFilterPress}>
         <Ionicons name="options-outline" size={24} color="white" />
